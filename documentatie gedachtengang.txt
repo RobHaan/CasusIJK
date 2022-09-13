@@ -1,0 +1,41 @@
+Stap 1. lezen casus:
+
+- Maak een web api waar orders geplaatst kunnen worden van klanten voor bij een brasserie.
+- Hier hoeft geen fysieke database aan gekoppeld te worden. Een inMemory database volstaat.
+- Bij het starten van de API is het van belang dat er voorbeelddata wordt toegevoegd aan de database.
+- Maak gebruik van Entity Framework Core.
+
+Mijn eerste gedachte bij het lezen van de gewenste endpoints is dat een REST api gekoppeld aan een database via een ORM de makkelijkste oplossing is. De regel "Maak gebruik van Entity Framework Core" bevestigt voor mij dat dit de goede richting is voor deze casus.
+Persoonlijk heb ik echter alleen maar ORM's gebruikt in combinatie met fysieke databases, dus ik zal even onderzoek moeten doen wat de opties zijn/ gang van zaken is bij inMemory databases.
+Ook zal ik een werkomgeving op moeten zetten om te werken met C# aangezien ik op deze computer enkel java en php gebruikt heb.
+
+Eerste schets database:
+
+objecten:
+-Klant > heeft orders, en klantinformatie zoals naam woonplaats etc.
+-Order > heeft orderregels, en waarschijnlijk datum van plaatsen Order, misschien status (betaald/inbehandeling/afgehandeld)
+-Orderregel > koppeltabbel tussen Order en Product, verder geen informatie
+-Product > wat er besteld is, heeft prijs, naam en misschien korte omschrijving/ plaatje oid.
+
+Klant 1-many Order
+Order 1-many Orderregel
+Orderregel many-1 Product
+
+Dit is waarschijnlijk de simpelste implementatie, maar het heeft een paar problemen. 
+Bijvoorbeeld: Wat als de prijs veranderd nadat de bestelling is geplaatst maar voordat er betaald is? 
+Een oplossing zou zijn: Prijs een apart object maken, dat is gekoppeld aan Product in een (Product 1-many Prijs) relatie. Waarbij elke prijs een start datum heeft. Om de juiste prijs te vinden moet dan gekeken worden naar de prijs met de "hoogste waarde" voor start datum, waarbij alle prijzen met datums na de besteldatum van de Order buiten beschouwing worden gelaten. Voor deze casus zal ik dit waarschijnlijk niet implementeren om de casus simpel en overzichtelijk te houden.
+
+Andere potentieele problemen in de gewenste endpoints:
+
+-het wijzigen/verwijderen van een Order
+-het wijzigen/verwijderen van een klant
+
+Deze operaties kunnen problemen geven met de geschiedenis en of werking van de service.
+Om problemen met Klant te voorkomen kan alle informatie over een klant naar een apart Klantinformatie object verplaatst worden wat een (Klantinformatie 0/1-1 Klant) relatie heeft met Klant. Op deze manier kan de informatie over klanten gewijzigd en verwijderd worden zonder dat de informatie dat er op een bepaalde datum iets besteld is door iemand verloren gaat.
+Problemen met het wijzigen van Order kunnen mischien grotere problemen veroorzaken, bijvoorbeeld het aantal bestelde producten wijzigen nadat de status op "betaald" is gezet.
+Een potentieele oplossing hier zou kunnen zijn om een regel toe te voegen dat Orders alleen aangepast/verwijderd mogen worden als ze nog niet in behandeling zijn genomen.
+
+Over deze punten zou ik normaal gesproken opheldering vragen om tot een gezamelijke oplossing te komen. Aangezien mijn e-mailcontact nu op vakantie is zal ik zelf een beslissing moeten nemen hoe hiermee om te gaan.
+
+Misschien denk ik ook te ver door en zijn dit geen problemen waar een fysieke brasserie tegenaan loopt.
+
